@@ -108,7 +108,9 @@ namespace OpenMS
     const int _color;
     std::stringstream _input;
     bool reset = true;
-
+#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+    int _defcolor;
+#endif
    //ewnum für farbauswahl
 
 #if defined(__linux__) || defined(__OSX__)

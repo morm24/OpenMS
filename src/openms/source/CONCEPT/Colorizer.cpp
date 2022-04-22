@@ -55,11 +55,21 @@ namespace OpenMS
   // constructor
   Colorizer::Colorizer(int color): _color(color)
   {
+    #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+    CONSOLE_SCREEN_BUFFER_INFO Info;
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    GetConsoleScreenBufferInfo(hStdout, &Info);
+    _defcolor = Info.wAttributes;
+    #endif
+    
   }
 
   /// Default destructor
   Colorizer::~Colorizer()
   {
+    #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), _defcolor);
+    #endif
   }
   //@}
 
@@ -97,22 +107,16 @@ namespace OpenMS
     // colorize string with color set in the object
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
    
-   // safe console Font info in Attributes
-    // could be set global, at programm start, to have less requests and faster access
-    CONSOLE_SCREEN_BUFFER_INFO Info;
-    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    GetConsoleScreenBufferInfo(hStdout, &Info);
-    WORD Attributes = Info.wAttributes;
-
-    
-    SetConsoleTextAttribute(hStdout,col.getColor());
+    //set color of output   
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),col.getColor());
 
     // paste text
     o_stream << col.getText();
+    
     // recover old Console font and set it as new one.
     if(col.getReset()) 
     {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Attributes);
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), col._defcolor);
     }
 
 #elif defined(__linux__) || defined(__OSX__)
@@ -125,6 +129,8 @@ namespace OpenMS
 
     return o_stream;
   }
+
+
   // All color types (Linux/OSX)
   /*
   Black           30  40
