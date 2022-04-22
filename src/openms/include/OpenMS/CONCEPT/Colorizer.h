@@ -92,6 +92,17 @@ namespace OpenMS
       return *this;
     }
 
+/*
+    template <typename T>
+    std::string operator()(T s)
+    {
+
+      std::stringstream text;
+      text << this;
+      return text.str();  
+    }
+*/    
+
   private:
     //std::string _text;
     const int _color;

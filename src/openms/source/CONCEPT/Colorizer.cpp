@@ -32,7 +32,8 @@
 // $Authors: Moritz Berger ; Tetana Krymovska$
 // --------------------------------------------------------------------------
 
-#include </buffer/ag_bsc/pmsb_22/morib70/openms/work_in_progress/Colorizer.h>
+#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
+//#include <OpenMS/CONCEPT/Colorizer.h>
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
@@ -89,14 +90,14 @@ namespace OpenMS
   { 
 
     return _input.str();
-  }
+  }   
   // overload the shift operator (<<)
   std::ostream &operator<<(std::ostream &o_stream, OpenMS::Colorizer& col)
   {
     // colorize string with color set in the object
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-
-    // safe console Font info in Attributes
+   
+   // safe console Font info in Attributes
     // could be set global, at programm start, to have less requests and faster access
     CONSOLE_SCREEN_BUFFER_INFO Info;
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -105,8 +106,7 @@ namespace OpenMS
 
     
     SetConsoleTextAttribute(hStdout,col.getColor());
-    
-    
+
     // paste text
     o_stream << col.getText();
     // recover old Console font and set it as new one.
