@@ -75,13 +75,20 @@ namespace OpenMS
 
 //operator overloading
     friend std::ostream &operator<<(std::ostream &o_stream, Colorizer& col);
+    
+    
+    
     template <typename T>
     Colorizer& operator()(T s)
     {
       //clear was not possible (resets some flags in the sream)
-      this->reset = true;
+      //std::string str = "";
       this->_input.str("");
       this->_input << s;
+     
+
+      (this->_input.str() == "")? this->reset = false: this->reset = true;
+      
       return *this;
     }
     Colorizer& operator()()
@@ -139,15 +146,82 @@ namespace OpenMS
 
 
 
-  extern /*OPENMS_DLLAPI*/ Colorizer black;
-  extern /*OPENMS_DLLAPI*/ Colorizer red;
-  extern /*OPENMS_DLLAPI*/ Colorizer green;
-  extern /*OPENMS_DLLAPI*/ Colorizer yellow;
-  extern /*OPENMS_DLLAPI*/ Colorizer blue;
-  extern /*OPENMS_DLLAPI*/ Colorizer magenta;
-  extern /*OPENMS_DLLAPI*/ Colorizer cyan;
-  extern /*OPENMS_DLLAPI*/ Colorizer white;
-  extern /*OPENMS_DLLAPI*/ Colorizer def;
+  extern /*OPENMS_DLLAPI*/ Colorizer color_black;
+  extern /*OPENMS_DLLAPI*/ Colorizer make_red;
+  extern /*OPENMS_DLLAPI*/ Colorizer make_green;
+  extern /*OPENMS_DLLAPI*/ Colorizer make_yellow;
+  extern /*OPENMS_DLLAPI*/ Colorizer make_blue;
+  extern /*OPENMS_DLLAPI*/ Colorizer make_magenta;
+  extern /*OPENMS_DLLAPI*/ Colorizer make_cyan;
+  extern /*OPENMS_DLLAPI*/ Colorizer make_white;
+  extern /*OPENMS_DLLAPI*/ Colorizer make_def;
+
+
+
+  template <typename T = std::string>
+  extern std::string black(T s = T(" "))
+  {
+    std::stringstream text;
+    text << color_black(s);
+      return text.str(); 
+}
+  template <typename T = std::string>
+  extern std::string red(T s = T(""))
+  {
+    std::stringstream text;
+    text << make_red(s);
+      return text.str(); 
+}
+  template <typename T= std::string>
+  extern std::string green(T s)
+  {
+    std::stringstream text;
+    text << make_green(s);
+      return text.str(); 
+}
+  template <typename T= std::string>
+  extern std::string yellow(T s = T("") )
+  {
+    std::stringstream text;
+    text << make_yellow(s);
+      return text.str(); 
+}
+  template <typename T= std::string>
+  extern std::string blue(T s = T(""))
+  {
+    std::stringstream text;
+    text << make_blue(s);
+      return text.str(); 
+}
+  template <typename T= std::string>
+  extern std::string magenta(T s = T(""))
+  {
+    std::stringstream text;
+    text << make_magenta(s);
+      return text.str(); 
+}
+  template <typename T = std::string>
+  extern std::string cyan(T s = T(""))
+  {
+    std::stringstream text;
+    text << make_cyan(s);
+      return text.str(); 
+}
+  template <typename T= std::string>
+  extern std::string white(T s = T(""))
+  {
+    std::stringstream text;
+    text << make_white(s);
+      return text.str(); 
+}
+  template <typename T = std::string>
+  extern std::string def(T s = T(""))
+  {
+    std::stringstream text;
+    text << make_def(s);
+      return text.str(); 
+}
+
 /*
   Colorizer red(std::string text);
   Colorizer green(std::string text);
@@ -160,3 +234,13 @@ namespace OpenMS
   Colorizer yellow(const char *text);
   Colorizer cyan(const char *text);*/
 }
+
+
+
+
+
+
+
+
+
+

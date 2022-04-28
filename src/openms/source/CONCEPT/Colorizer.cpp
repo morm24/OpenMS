@@ -144,20 +144,24 @@ namespace OpenMS
   */
 
  //Objekte des typs colorizer
-  OpenMS::Colorizer black(0);
-  OpenMS::Colorizer red(1);
+  OpenMS::Colorizer color_black(0);
+  OpenMS::Colorizer make_red(1);
   //std::string red(std::string text)
   //{
    // return std::string(red(text));
 
   //}
-  OpenMS::Colorizer green(2);
-  OpenMS::Colorizer yellow(3);
-  OpenMS::Colorizer blue(4);
-  OpenMS::Colorizer magenta(5);
-  OpenMS::Colorizer cyan(6);
-  OpenMS::Colorizer white(7);
-  OpenMS::Colorizer def(8);
+  OpenMS::Colorizer make_green(2);
+
+
+  OpenMS::Colorizer make_yellow(3);
+  OpenMS::Colorizer make_blue(4);
+  OpenMS::Colorizer make_magenta(5);
+  OpenMS::Colorizer make_cyan(6);
+  OpenMS::Colorizer make_white(7);
+  OpenMS::Colorizer make_def(8);
+
+
 
  //free funct. make_color
 

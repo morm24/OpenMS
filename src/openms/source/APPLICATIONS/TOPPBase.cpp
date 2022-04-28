@@ -629,9 +629,9 @@ namespace OpenMS
 
       //NAME + ARGUMENT
       String str_tmp = "  -";
-      str_tmp += it->name + " " + it->argument;
+      str_tmp += green(it->name) + " " + blue(it->argument);
       if (it->required)
-        str_tmp += '*';
+        str_tmp += blue('*');
       if (it->type == ParameterInformation::NEWLINE)
         str_tmp = "";
 
@@ -731,9 +731,9 @@ namespace OpenMS
       }
 
       if (it->type == ParameterInformation::TEXT)
-        cerr << green(ConsoleUtils::breakString(str_tmp + desc_tmp, 0, 10)); // no indentation for text
+        cerr << (ConsoleUtils::breakString(red(str_tmp) + desc_tmp, 0, 10)); // no indentation for text
       else
-        cerr << green(ConsoleUtils::breakString(str_tmp + desc_tmp, offset, 10));
+        cerr << ConsoleUtils::breakString(str_tmp + desc_tmp, offset, 10);
       cerr << "\n";
     }
 
