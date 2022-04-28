@@ -69,7 +69,7 @@ namespace OpenMS
     //@}
 
     
-    auto getColor(int i = NULL);
+    auto getColor(int i = -1);
     std::string getText();
     bool getReset() {return this->reset;}
 
@@ -93,15 +93,17 @@ namespace OpenMS
     }
 
 /*
+//klammer operator, um die farbigen Text an eine funktion übergeben zu können. 
     template <typename T>
-    std::string operator()(T s)
+    friend std::string operator()(T s)
     {
 
       std::stringstream text;
       text << this;
       return text.str();  
     }
-*/    
+*/
+   
 
   private:
     //std::string _text;
@@ -113,8 +115,9 @@ namespace OpenMS
 #endif
    //ewnum für farbauswahl
 
-#if defined(__linux__) || defined(__OSX__)
-    /**
+
+
+/**
      * @brief constant string array which saves the Linux color codes.
      * 0=black
      * 1=red
@@ -127,8 +130,9 @@ namespace OpenMS
      * 8=default console color (reset)
      *
      */
+#if defined(__linux__) || defined(__OSX__)
     inline static const std::array<const char*,9> colors {"\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m", "\033[37m", "\033[0m"};
-    #elif defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#elif defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
     inline static const std::array<const int,9> colors {16,12,10,14,9,13,11,15,15};
 #endif
   };

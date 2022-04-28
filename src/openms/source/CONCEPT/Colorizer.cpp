@@ -93,7 +93,7 @@ namespace OpenMS
   {
     //checking if parameter is outside array size or not set at all
     // Darf nicht NULL, da dadurch kein "black" mehr möglich ist
-    return ((i == NULL || i > 8 || i < 0) ? this->colors[this->_color] : this->colors[i]);
+    return ((i == -1 || i > 8 || i < 0) ? this->colors[this->_color] : this->colors[i]);
   }
 
   std::string Colorizer::getText()
@@ -146,6 +146,11 @@ namespace OpenMS
  //Objekte des typs colorizer
   OpenMS::Colorizer black(0);
   OpenMS::Colorizer red(1);
+  //std::string red(std::string text)
+  //{
+   // return std::string(red(text));
+
+  //}
   OpenMS::Colorizer green(2);
   OpenMS::Colorizer yellow(3);
   OpenMS::Colorizer blue(4);

@@ -40,6 +40,7 @@
 
 #include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/CONCEPT/VersionInfo.h>
+#include <OpenMS/CONCEPT/Colorizer.h>
 
 #include <OpenMS/DATASTRUCTURES/Date.h>
 #include <OpenMS/DATASTRUCTURES/Param.h>
@@ -239,10 +240,10 @@ namespace OpenMS
     for (int i = 0; i < argc; ++i)
     {
       if (String(argv[i]).has(' '))
-      {
+      { 
         args.push_back(String(argv[i]).quote()); // surround with quotes if argument contains a space
       }
-      else
+      else 
       {
         args.push_back(argv[i]);
       }
@@ -542,6 +543,7 @@ namespace OpenMS
 
     // common output
     cerr << "\n"
+         << red("Diese Zeile wurde manuell eingerfuegt. (TOPPBase.cpp zeile 546)") << "\n"
          << ConsoleUtils::breakString(tool_name_ + " -- " + tool_description_, 0, 10) << "\n"
          << ConsoleUtils::breakString(String("Full documentation: ") + docurl, 0, 10) << "\n"
          << "Version: " << verboseVersion_ << "\n"
@@ -553,7 +555,7 @@ namespace OpenMS
     }
     cerr << "\n";
     cerr << "Usage:" << "\n"
-         << "  " << tool_name_ << " <options>" << "\n"
+         << "  " << tool_name_ << green(" <options>") << "\n"
          << "\n";
 
     // print warning regarding not shown parameters
@@ -617,7 +619,7 @@ namespace OpenMS
           subsection_description = current_TOPP_subsection;
         }
 
-        cerr << ConsoleUtils::breakString(subsection_description, 0, 10) << ":\n"; // print subsection description
+        cerr << yellow(ConsoleUtils::breakString(subsection_description, 0, 10)) << ":\n"; // print subsection description
       }
       else if (subsection.empty() && !current_TOPP_subsection.empty()) // subsection ended and normal parameters start again
       {
@@ -683,10 +685,10 @@ namespace OpenMS
           }
 
           String add = "";
-          if (it->type == ParameterInformation::INPUT_FILE
+          if (it->type == ParameterInformation::INPUT_FILE 
             || it->type == ParameterInformation::OUTPUT_FILE
             || it->type == ParameterInformation::OUTPUT_PREFIX
-            || it->type == ParameterInformation::INPUT_FILE_LIST
+            || it->type == ParameterInformation::INPUT_FILE_LIST 
             || it->type == ParameterInformation::OUTPUT_FILE_LIST)
             add = " formats";
 
@@ -729,9 +731,9 @@ namespace OpenMS
       }
 
       if (it->type == ParameterInformation::TEXT)
-        cerr << ConsoleUtils::breakString(str_tmp + desc_tmp, 0, 10); // no indentation for text
+        cerr << green(ConsoleUtils::breakString(str_tmp + desc_tmp, 0, 10)); // no indentation for text
       else
-        cerr << ConsoleUtils::breakString(str_tmp + desc_tmp, offset, 10);
+        cerr << green(ConsoleUtils::breakString(str_tmp + desc_tmp, offset, 10));
       cerr << "\n";
     }
 
@@ -1125,7 +1127,7 @@ namespace OpenMS
     }
     if (required && !default_value.empty() && count_conflicting_tags == 0)
       throw InvalidValue(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Registering a required InputFile param (" + name + ") with a non-empty default is forbidden!", default_value);
-    parameters_.push_back(ParameterInformation(name, ParameterInformation::INPUT_FILE, argument, default_value, description, required, advanced, tags));
+    parameters_.push_back(ParameterInformation(name, ParameterInformation::INPUT_FILE, argument, default_value, description, required, advanced, tags));    
   }
 
   void TOPPBase::registerOutputFile_(const String& name, const String& argument, const String& default_value, const String& description, bool required, bool advanced)
@@ -1236,9 +1238,9 @@ namespace OpenMS
   String TOPPBase::getStringOption_(const String& name) const
   {
     const ParameterInformation& p = findEntry_(name);
-    if (p.type != ParameterInformation::STRING
-      && p.type != ParameterInformation::INPUT_FILE
-      && p.type != ParameterInformation::OUTPUT_FILE
+    if (p.type != ParameterInformation::STRING 
+      && p.type != ParameterInformation::INPUT_FILE 
+      && p.type != ParameterInformation::OUTPUT_FILE 
       && p.type != ParameterInformation::OUTPUT_PREFIX)
     {
       throw WrongParameterType(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, name);
@@ -1368,7 +1370,7 @@ namespace OpenMS
           writeLog_("Input file '" + param_value + "' could not be found (by searching on PATH). "
                     "Either provide a full filepath or fix your PATH environment!" +
                     (p.required ? "" : " Since this file is not strictly required, you might also pass the empty string \"\" as "
-                    "argument to prevent its usage (this might limit the usability of the tool)."));
+                    "argument to prevent it's usage (this might limit the usability of the tool)."));
           throw FileNotFound(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, param_value);
         }
       }
@@ -1422,7 +1424,7 @@ namespace OpenMS
         // determine file type as string
         FileTypes::Type f_type = FileHandler::getTypeByFileName(param_value);
         // Wrong ending, unknown is is ok.
-        if (f_type != FileTypes::UNKNOWN
+        if (f_type != FileTypes::UNKNOWN 
           && !ListUtils::contains(p.valid_strings, FileTypes::typeToName(f_type).toUpper(), ListUtils::CASE::INSENSITIVE))
         {
           throw InvalidParameter(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
@@ -1441,8 +1443,8 @@ namespace OpenMS
   StringList TOPPBase::getStringList_(const String& name) const
   {
     const ParameterInformation& p = findEntry_(name);
-    if (p.type != ParameterInformation::STRINGLIST
-      && p.type != ParameterInformation::INPUT_FILE_LIST
+    if (p.type != ParameterInformation::STRINGLIST 
+      && p.type != ParameterInformation::INPUT_FILE_LIST 
       && p.type != ParameterInformation::OUTPUT_FILE_LIST)
     {
       throw WrongParameterType(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, name);
@@ -2007,7 +2009,7 @@ namespace OpenMS
       {
         tags.push_back("input file");
       }
-
+      
       if (it->type == ParameterInformation::OUTPUT_FILE || it->type == ParameterInformation::OUTPUT_FILE_LIST)
       {
         tags.push_back("output file");
@@ -2016,7 +2018,7 @@ namespace OpenMS
       if (it->type == ParameterInformation::OUTPUT_PREFIX)
       {
         tags.push_back("output prefix");
-      }
+      }        
 
       switch (it->type)
       {
