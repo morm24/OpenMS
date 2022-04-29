@@ -692,7 +692,7 @@ namespace OpenMS
             || it->type == ParameterInformation::OUTPUT_FILE_LIST)
             add = " formats";
 
-          addons.push_back(String("valid") + add + ": " + ListUtils::concatenate(copy, ", ")); // concatenate restrictions by comma
+          addons.push_back(String("valid") + add + ": " + magenta(ListUtils::concatenate(copy, ", "))); // concatenate restrictions by comma
         }
         break;
 

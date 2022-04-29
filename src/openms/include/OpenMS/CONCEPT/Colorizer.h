@@ -78,8 +78,8 @@ namespace OpenMS
     
     
     
-    template <typename T>
-    Colorizer& operator()(T s)
+    template <typename T = std::string>
+    Colorizer& operator()(T s = T(""))
     {
       //clear was not possible (resets some flags in the sream)
       //std::string str = "";
@@ -91,6 +91,7 @@ namespace OpenMS
       
       return *this;
     }
+    /*
     Colorizer& operator()()
     {
       
@@ -98,6 +99,7 @@ namespace OpenMS
       this->_input.str("");
       return *this;
     }
+    */
 
 /*
 //klammer operator, um die farbigen Text an eine funktion übergeben zu können. 
@@ -145,7 +147,7 @@ namespace OpenMS
   };
 
 
-
+//deklaration of all colorizer object. 
   extern /*OPENMS_DLLAPI*/ Colorizer color_black;
   extern /*OPENMS_DLLAPI*/ Colorizer make_red;
   extern /*OPENMS_DLLAPI*/ Colorizer make_green;
@@ -157,9 +159,9 @@ namespace OpenMS
   extern /*OPENMS_DLLAPI*/ Colorizer make_def;
 
 
-
+//definition of colorizing functions. (so function calls like process_string(green(string)) are possible.)
   template <typename T = std::string>
-  extern std::string black(T s = T(" "))
+  extern std::string black(T s = T(""))
   {
     std::stringstream text;
     text << color_black(s);
@@ -173,7 +175,7 @@ namespace OpenMS
       return text.str(); 
 }
   template <typename T= std::string>
-  extern std::string green(T s)
+  extern std::string green(T s = T(""))
   {
     std::stringstream text;
     text << make_green(s);

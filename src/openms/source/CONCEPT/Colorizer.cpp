@@ -55,6 +55,7 @@ namespace OpenMS
   // constructor
   Colorizer::Colorizer(int color): _color(color)
   {
+    //If we are on windows, get the "default" console color and safe it in _defcolor
     #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
     CONSOLE_SCREEN_BUFFER_INFO Info;
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -67,8 +68,11 @@ namespace OpenMS
   /// Default destructor
   Colorizer::~Colorizer()
   {
+    //if colorizer oibject is destroyed, set console color back to def col. 
     #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), _defcolor);
+    #elif defined(__linux__) || defined(__OSX__)
+    std::cout << colors[8];
     #endif
   }
   //@}
