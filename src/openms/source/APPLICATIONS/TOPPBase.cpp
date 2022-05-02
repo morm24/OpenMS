@@ -1370,7 +1370,7 @@ namespace OpenMS
           writeLog_("Input file '" + param_value + "' could not be found (by searching on PATH). "
                     "Either provide a full filepath or fix your PATH environment!" +
                     (p.required ? "" : " Since this file is not strictly required, you might also pass the empty string \"\" as "
-                    "argument to prevent it's usage (this might limit the usability of the tool)."));
+                    "argument to prevent its usage (this might limit the usability of the tool)."));
           throw FileNotFound(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, param_value);
         }
       }

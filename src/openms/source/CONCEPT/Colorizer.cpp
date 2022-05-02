@@ -28,11 +28,11 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // --------------------------------------------------------------------------
-// $Maintainer: Moritz Berger; Tetana Krymovska $
-// $Authors: Moritz Berger ; Tetana Krymovska$
+// $Maintainer: Moritz Berger, Tetana Krymovska $
+// $Authors: Moritz Berger, Tetana Krymovska$
 // --------------------------------------------------------------------------
 
-#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
+#include <OpenMS/CONCEPT/Colorizer.h>
 //#include <OpenMS/CONCEPT/Colorizer.h>
 #include <iostream>
 
@@ -68,7 +68,7 @@ namespace OpenMS
   /// Default destructor
   Colorizer::~Colorizer()
   {
-    //if colorizer oibject is destroyed, set console color back to def col. 
+    //if colorizer object is destroyed, set console color back to def col. 
     #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), _defcolor);
     #elif defined(__linux__) || defined(__OSX__)
@@ -112,7 +112,7 @@ namespace OpenMS
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
    
     //set color of output   
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),col.getColor());
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), col.getColor());
 
     // paste text
     o_stream << col.getText();

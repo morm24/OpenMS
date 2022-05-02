@@ -28,8 +28,8 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // --------------------------------------------------------------------------
-// $Maintainer: Moritz Berger ; Tetana Krymovska$
-// $Authors: Moritz Berger ; Tetana Krymovska$
+// $Maintainer: Moritz Berger, Tetana Krymovska$
+// $Authors: Moritz Berger, Tetana Krymovska$
 // --------------------------------------------------------------------------
 
 #pragma once
@@ -49,45 +49,71 @@ namespace OpenMS
 {
 
   /**
-   * @brief A class, that provides options for coloring String output with the "<<" Operator
+   * @brief A class, that provides options for colored output with the "<<" operator for output streams (cout, cerr)
    *
    */
   class Colorizer
   {
 
   public:
+
+  enum class COLOR  // todo: move this outside of class
+  {
+     black,
+     red,
+     green,
+     yellow,
+     blue,
+     magenta,
+     cyan,
+     white,
+     RESET, ///< reset the color to the previous (default?) color
+  };
+
     /** @name Constructors and Destructor
      */
     //@{
-    Colorizer(int color); 
+    Colorizer(COLOR color); 
 
     /// Copy constructor
     //Colorizer(const Colorizer &rhs);
 
-    /// Default destructor
+    /// Destructor
     ~Colorizer();
     //@}
 
     
     auto getColor(int i = -1);
     std::string getText();
-    bool getReset() {return this->reset;}
+    bool getReset() 
+    {
+      return this->reset;
+    }
 
 //operator overloading
     friend std::ostream &operator<<(std::ostream &o_stream, Colorizer& col);
     
     
     
-    template <typename T = std::string>
-    Colorizer& operator()(T s = T(""))
+
+    Colorizer& operator()()
+    {
+      reset_ = false;
+      this->_input.str(""); // clear the stream 
+      return *this;
+    }
+    
+    
+    template <typename T>
+    Colorizer& operator()(T s)
     {
       //clear was not possible (resets some flags in the sream)
       //std::string str = "";
-      this->_input.str("");
-      this->_input << s;
+      this->_input.str(""); // clear the stringstream
+      this->_input << s;  // add new data
      
 
-      (this->_input.str() == "")? this->reset = false: this->reset = true;
+     reset_ = true;
       
       return *this;
     }
@@ -116,11 +142,11 @@ namespace OpenMS
 
   private:
     //std::string _text;
-    const int _color;
-    std::stringstream _input;
-    bool reset = true;
-#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-    int _defcolor;
+    const int color_;
+    std::stringstream input_;
+    bool reset_ = true;
+#ifdef OPENMS_WINDOWSPLATFORM
+    int default_color_;
 #endif
    //ewnum für farbauswahl
 
@@ -140,15 +166,15 @@ namespace OpenMS
      *
      */
 #if defined(__linux__) || defined(__OSX__)
-    inline static const std::array<const char*,9> colors {"\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m", "\033[37m", "\033[0m"};
+    inline static constexpr std::array<const char*,9> colors_ {"\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m", "\033[37m", "\033[0m"};
 #elif defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-    inline static const std::array<const int,9> colors {16,12,10,14,9,13,11,15,15};
+    inline static constexpr std::array<const int,9> colors_ {16,12,10,14,9,13,11,15,15};
 #endif
   };
 
 
-//deklaration of all colorizer object. 
-  extern /*OPENMS_DLLAPI*/ Colorizer color_black;
+//declaration of all colorizer object. 
+  extern /*OPENMS_DLLAPI*/ Colorizer make_black;
   extern /*OPENMS_DLLAPI*/ Colorizer make_red;
   extern /*OPENMS_DLLAPI*/ Colorizer make_green;
   extern /*OPENMS_DLLAPI*/ Colorizer make_yellow;
@@ -156,16 +182,16 @@ namespace OpenMS
   extern /*OPENMS_DLLAPI*/ Colorizer make_magenta;
   extern /*OPENMS_DLLAPI*/ Colorizer make_cyan;
   extern /*OPENMS_DLLAPI*/ Colorizer make_white;
-  extern /*OPENMS_DLLAPI*/ Colorizer make_def;
+  extern /*OPENMS_DLLAPI*/ Colorizer reset_color; ///< reset the color to default, alias for 'make_default_color'
+  extern /*OPENMS_DLLAPI*/ Colorizer make_default_color; ///< reset the color to default, alias for 'reset_color'
+  
 
 
 //definition of colorizing functions. (so function calls like process_string(green(string)) are possible.)
   template <typename T = std::string>
   extern std::string black(T s = T(""))
   {
-    std::stringstream text;
-    text << color_black(s);
-      return text.str(); 
+      return color_black(s); 
 }
   template <typename T = std::string>
   extern std::string red(T s = T(""))
