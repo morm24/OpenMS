@@ -32,8 +32,8 @@
 // $Authors: Moritz Berger, Tetana Krymovska$
 // --------------------------------------------------------------------------
 
-#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
-//#include <OpenMS/CONCEPT/Colorizer.h>
+//#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
+#include <OpenMS/CONCEPT/Colorizer.h>
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
