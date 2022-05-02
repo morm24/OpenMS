@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2022.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -36,17 +36,68 @@
 
 //#include <OpenMS/KERNEL/MSExperiment.h>
 
+#include <array>
 #include <iosfwd>
 #include <sstream>
-#include <array>
 //#include <OPENMS_DLLAPI>
-
-
-
 
 
 namespace OpenMS
 {
+#ifdef OPENMS_WINDOWSPLATFORM
+  namespace Internal
+  {
+    struct WindowsOSDefaultColor {
+      WindowsOSDefaultColor()
+      {
+        //! nicht hier initialisieren, da winows.h includiert werden müste. (in .cpp machen)
+
+        std::cout << "saving default colors...\n";
+        CONSOLE_SCREEN_BUFFER_INFO Info;
+        HANDLE handle_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+        HANDLE handle_stderr = GetStdHandle(STD_ERROR_HANDLE);
+        
+        GetConsoleScreenBufferInfo(handle_stdout, &Info);
+        
+        default_cout_ = Info.wAttributes;
+                
+        GetConsoleScreenBufferInfo(handle_stderr, &Info);
+        
+        default_cerr_ = Info.wAttributes
+        
+        /// get and remember 2 default colors
+      }
+      ~WindowsOSDefaultColor()
+      {
+
+        std::cout << "restoring default colors...\n";
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_cout_ );
+        etConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), default_cerr_);
+        
+      }
+
+      
+        int default_cout_;
+        int default_cerr_;
+    }; // end WindowsOSDefaultColor
+
+    extern static const WindowsOSDefaultColor default_color____;
+
+  } // namespace Internal
+#endif
+
+//enum COLOR for easier Object initialisation.
+  enum class COLOR {
+    black,
+    red,
+    green,
+    yellow,
+    blue,
+    magenta,
+    cyan,
+    white,
+    RESET, ///< reset the color to the previous (default?) color
+  };
 
   /**
    * @brief A class, that provides options for colored output with the "<<" operator for output streams (cout, cerr)
@@ -54,221 +105,147 @@ namespace OpenMS
    */
   class Colorizer
   {
-
   public:
-
-  enum class COLOR  // todo: move this outside of class
-  {
-     black,
-     red,
-     green,
-     yellow,
-     blue,
-     magenta,
-     cyan,
-     white,
-     RESET, ///< reset the color to the previous (default?) color
-  };
-
     /** @name Constructors and Destructor
      */
     //@{
-    Colorizer(COLOR color); 
+    Colorizer(const COLOR color);
 
     /// Copy constructor
-    //Colorizer(const Colorizer &rhs);
+    // Colorizer(const Colorizer &rhs);
 
     /// Destructor
     ~Colorizer();
     //@}
 
+    void outputToStream(std::ostream &o_stream);
     
-    auto getColor(int i = -1);
-    std::string getText();
-    bool getReset() 
-    {
-      return this->reset;
-    }
 
-//operator overloading
-    friend std::ostream &operator<<(std::ostream &o_stream, Colorizer& col);
-    
-    
-    
+    // operator overloading
+    friend std::ostream& operator<<(std::ostream& o_stream, Colorizer& col);
+
 
     Colorizer& operator()()
     {
       reset_ = false;
-      this->_input.str(""); // clear the stream 
+      this->input_.str(""); // clear the stream
       return *this;
     }
-    
-    
-    template <typename T>
+
+
+    template<typename T>
     Colorizer& operator()(T s)
     {
-      //clear was not possible (resets some flags in the sream)
-      //std::string str = "";
-      this->_input.str(""); // clear the stringstream
-      this->_input << s;  // add new data
-     
-
-     reset_ = true;
-      
+      this->input_.str(""); // clear the stringstream
+      this->input_ << s;    // add new data
+      reset_ = true;
       return *this;
     }
-    /*
-    Colorizer& operator()()
-    {
-      
-      this ->reset = false;
-      this->_input.str("");
-      return *this;
-    }
-    */
-
-/*
-//klammer operator, um die farbigen Text an eine funktion übergeben zu können. 
-    template <typename T>
-    friend std::string operator()(T s)
-    {
-
-      std::stringstream text;
-      text << this;
-      return text.str();  
-    }
-*/
-   
 
   private:
-    //std::string _text;
     const int color_;
     std::stringstream input_;
     bool reset_ = true;
-#ifdef OPENMS_WINDOWSPLATFORM
-    int default_color_;
-#endif
-   //ewnum für farbauswahl
 
 
 
 /**
-     * @brief constant string array which saves the Linux color codes.
-     * 0=black
-     * 1=red
-     * 2=green
-     * 3=yellow
-     * 4=blue
-     * 5=magenta
-     * 6=cyan
-     * 7=white
-     * 8=default console color (reset)
-     *
-     */
-#if defined(__linux__) || defined(__OSX__)
-    inline static constexpr std::array<const char*,9> colors_ {"\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m", "\033[37m", "\033[0m"};
-#elif defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-    inline static constexpr std::array<const int,9> colors_ {16,12,10,14,9,13,11,15,15};
+ * @brief constant string array which saves the Linux color codes.
+ * 0=black
+ * 1=red
+ * 2=green
+ * 3=yellow
+ * 4=blue
+ * 5=magenta
+ * 6=cyan
+ * 7=white
+ * 8=default console color (reset)
+ *
+ */
+#ifdef OPENMS_WINDOWSPLATFORM
+    inline static constexpr std::array<const int, 9> colors_ {16, 12, 10, 14, 9, 13, 11, 15, 15};
+
+#elif defined(__linux__) || defined(__OSX__)
+    inline static constexpr std::array<const char*, 9> colors_ {"\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m", "\033[37m", "\033[0m"};
+
 #endif
   };
 
 
-//declaration of all colorizer object. 
-  extern /*OPENMS_DLLAPI*/ Colorizer make_black;
-  extern /*OPENMS_DLLAPI*/ Colorizer make_red;
-  extern /*OPENMS_DLLAPI*/ Colorizer make_green;
-  extern /*OPENMS_DLLAPI*/ Colorizer make_yellow;
-  extern /*OPENMS_DLLAPI*/ Colorizer make_blue;
-  extern /*OPENMS_DLLAPI*/ Colorizer make_magenta;
-  extern /*OPENMS_DLLAPI*/ Colorizer make_cyan;
-  extern /*OPENMS_DLLAPI*/ Colorizer make_white;
-  extern /*OPENMS_DLLAPI*/ Colorizer reset_color; ///< reset the color to default, alias for 'make_default_color'
-  extern /*OPENMS_DLLAPI*/ Colorizer make_default_color; ///< reset the color to default, alias for 'reset_color'
-  
+  // declaration of all colorizer object.
+  extern /*OPENMS_DLLAPI*/ Colorizer black;
+  extern /*OPENMS_DLLAPI*/ Colorizer red;
+  extern /*OPENMS_DLLAPI*/ Colorizer green;
+  extern /*OPENMS_DLLAPI*/ Colorizer yellow;
+  extern /*OPENMS_DLLAPI*/ Colorizer blue;
+  extern /*OPENMS_DLLAPI*/ Colorizer magenta;
+  extern /*OPENMS_DLLAPI*/ Colorizer cyan;
+  extern /*OPENMS_DLLAPI*/ Colorizer white;
+  extern /*OPENMS_DLLAPI*/ Colorizer reset_color;        ///< reset the color to default, alias for 'make_default_color'
+  extern /*OPENMS_DLLAPI*/ Colorizer default_color; ///< reset the color to default, alias for 'reset_color'
 
 
-//definition of colorizing functions. (so function calls like process_string(green(string)) are possible.)
-  template <typename T = std::string>
+  // wahrscheinlich unnörig, da funktionalität unter windows nicht gegeben.
+
+  // definition of colorizing functions. (so function calls like process_string(green(string)) are possible.)
+  /*
+  template<typename T = std::string>
   extern std::string black(T s = T(""))
   {
-      return color_black(s); 
-}
-  template <typename T = std::string>
+    return color_black(s);
+  }
+  template<typename T = std::string>
   extern std::string red(T s = T(""))
   {
-    std::stringstream text;
-    text << make_red(s);
-      return text.str(); 
-}
-  template <typename T= std::string>
+    return make_red(s);
+  }
+  template<typename T = std::string>
   extern std::string green(T s = T(""))
   {
-    std::stringstream text;
-    text << make_green(s);
-      return text.str(); 
-}
-  template <typename T= std::string>
-  extern std::string yellow(T s = T("") )
+    return make_green(s);
+  }
+  template<typename T = std::string>
+  extern std::string yellow(T s = T(""))
   {
-    std::stringstream text;
-    text << make_yellow(s);
-      return text.str(); 
-}
-  template <typename T= std::string>
+    return make_yellow(s);
+  }
+  template<typename T = std::string>
   extern std::string blue(T s = T(""))
   {
-    std::stringstream text;
-    text << make_blue(s);
-      return text.str(); 
-}
-  template <typename T= std::string>
+    return make_blue(s);
+  }
+  template<typename T = std::string>
   extern std::string magenta(T s = T(""))
   {
-    std::stringstream text;
-    text << make_magenta(s);
-      return text.str(); 
-}
-  template <typename T = std::string>
+    return make_magenta(s);
+  }
+  template<typename T = std::string>
   extern std::string cyan(T s = T(""))
   {
-    std::stringstream text;
-    text << make_cyan(s);
-      return text.str(); 
-}
-  template <typename T= std::string>
+    
+    return make_cyan(s);
+  }
+  template<typename T = std::string>
   extern std::string white(T s = T(""))
   {
-    std::stringstream text;
-    text << make_white(s);
-      return text.str(); 
-}
-  template <typename T = std::string>
+    return make_white(s);
+  }
+  template<typename T = std::string>
   extern std::string def(T s = T(""))
   {
-    std::stringstream text;
-    text << make_def(s);
-      return text.str(); 
-}
+    return make_default_color(s);
+  }
 
-/*
-  Colorizer red(std::string text);
-  Colorizer green(std::string text);
-  Colorizer yellow(std::string text);
-  Colorizer cyan(std::string text);
+  /*
+    Colorizer red(std::string text);
+    Colorizer green(std::string text);
+    Colorizer yellow(std::string text);
+    Colorizer cyan(std::string text);
 
-  //Colorizer blue(const char *text);
-  Colorizer red(const char *text);
-  Colorizer green(const char *text);
-  Colorizer yellow(const char *text);
-  Colorizer cyan(const char *text);*/
-}
-
-
-
-
-
-
-
-
-
+    //Colorizer blue(const char *text);
+    Colorizer red(const char *text);
+    Colorizer green(const char *text);
+    Colorizer yellow(const char *text);
+    Colorizer cyan(const char *text);*/
+} // namespace OpenMS
 

@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2022.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -32,19 +32,18 @@
 // $Authors: Moritz Berger, Tetana Krymovska$
 // --------------------------------------------------------------------------
 
-#include <OpenMS/CONCEPT/Colorizer.h>
+#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
 //#include <OpenMS/CONCEPT/Colorizer.h>
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-#include <windows.h>
+  #include <windows.h>
 #endif
 /**
 
-#include <OpenMS/DATASTRUCTURES/String.h>
-
-#include <OpenMS/CONCEPT/Types.h>
 #include <OpenMS/CONCEPT/Exception.h>
+#include <OpenMS/CONCEPT/Types.h>
+#include <OpenMS/DATASTRUCTURES/String.h>
 **/
 namespace OpenMS
 {
@@ -53,27 +52,17 @@ namespace OpenMS
    */
   //@{
   // constructor
-  Colorizer::Colorizer(int color): _color(color)
+  Colorizer::Colorizer(const COLOR color) : color_((int)color) // color must be in initializer list, because of const keyword
   {
-    //If we are on windows, get the "default" console color and safe it in _defcolor
-    #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-    CONSOLE_SCREEN_BUFFER_INFO Info;
-    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    GetConsoleScreenBufferInfo(hStdout, &Info);
-    _defcolor = Info.wAttributes;
-    #endif
-    
   }
 
   /// Default destructor
   Colorizer::~Colorizer()
   {
-    //if colorizer object is destroyed, set console color back to def col. 
-    #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), _defcolor);
-    #elif defined(__linux__) || defined(__OSX__)
-    std::cout << colors[8];
-    #endif
+// if colorizer object is destroyed, set console color back to def col.
+#if defined(__linux__) || defined(__OSX__)
+    std::cout << colors_[8];
+#endif
   }
   //@}
 
@@ -92,7 +81,7 @@ namespace OpenMS
    * 7=white
    * 8=default console color (reset)
   \return std::string contaaining ANSI escape characters for colors
-  */
+
   auto Colorizer::getColor(int i)
   {
     //checking if parameter is outside array size or not set at all
@@ -101,36 +90,48 @@ namespace OpenMS
   }
 
   std::string Colorizer::getText()
-  { 
+  {
 
     return _input.str();
-  }   
-  // overload the shift operator (<<)
-  std::ostream &operator<<(std::ostream &o_stream, OpenMS::Colorizer& col)
+  }
+  */
+
+  //Helper function, to manipulate the output stream in class.
+  void Colorizer::outputToStream(std::ostream& o_stream)
   {
-    // colorize string with color set in the object
-#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-   
-    //set color of output   
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), col.getColor());
+    #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+
+    // set color of output
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), this->colors[this->color_]);
 
     // paste text
-    o_stream << col.getText();
-    
+    o_stream << this->input_;
+
     // recover old Console font and set it as new one.
-    if(col.getReset()) 
+    if (this->reset_)
     {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), col._defcolor);
+      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_color___);
     }
 
 #elif defined(__linux__) || defined(__OSX__)
-    o_stream << col.getColor();
+    o_stream << this->colors_[this->color_];
 
-    o_stream << col.getText();
-    //if flag reset is set: reset comand line. else dont reset.
-    o_stream << ((col.getReset())? col.getColor(8):"");
+    o_stream << this->input_.str();
+
+    // if flag reset is set: reset comand line. else dont reset.
+    if(this->reset_)
+    {
+      o_stream << this->colors_[8];
+    }
 #endif
+  }
 
+
+  // overload the shift operator (<<)
+  std::ostream& operator<<(std::ostream& o_stream, OpenMS::Colorizer& col)
+  {
+    // colorize string with color set in the object
+    col.outputToStream(o_stream);
     return o_stream;
   }
 
@@ -147,27 +148,16 @@ namespace OpenMS
   White           37  47
   */
 
- //Objekte des typs colorizer
-  OpenMS::Colorizer color_black(0);
-  OpenMS::Colorizer make_red(1);
-  //std::string red(std::string text)
-  //{
-   // return std::string(red(text));
+  // Objekte des typs colorizer
+  OpenMS::Colorizer black(COLOR::black);
+  OpenMS::Colorizer red(COLOR::red);
+  OpenMS::Colorizer green(COLOR::green);
+  OpenMS::Colorizer yellow(COLOR::yellow);
+  OpenMS::Colorizer blue(COLOR::blue);
+  OpenMS::Colorizer magenta(COLOR::magenta);
+  OpenMS::Colorizer cyan(COLOR::cyan);
+  OpenMS::Colorizer white(COLOR::white);
+  OpenMS::Colorizer reset_color(COLOR::RESET); 
+  OpenMS::Colorizer default_color(COLOR::RESET);
 
-  //}
-  OpenMS::Colorizer make_green(2);
-
-
-  OpenMS::Colorizer make_yellow(3);
-  OpenMS::Colorizer make_blue(4);
-  OpenMS::Colorizer make_magenta(5);
-  OpenMS::Colorizer make_cyan(6);
-  OpenMS::Colorizer make_white(7);
-  OpenMS::Colorizer make_def(8);
-
-
-
- //free funct. make_color
-
-
-}
+} // namespace OpenMS
