@@ -58,7 +58,7 @@ namespace OpenMS
     }; // end WindowsOSDefaultColor
     
     //extern or static. both throw an error
-    static const WindowsOSDefaultColor default_color___;
+    //extern const WindowsOSDefaultColor default_color___;
 
   } // namespace Internal
 #endif
