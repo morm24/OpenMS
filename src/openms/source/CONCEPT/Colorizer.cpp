@@ -81,7 +81,7 @@ namespace OpenMS
       SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_cout_);
       SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), default_cerr_);
     }
-    extern const WindowsOSDefaultColor default_color___();
+    //extern const WindowsOSDefaultColor default_color___;
 
   } // namespace Internal
   
