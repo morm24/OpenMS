@@ -36,10 +36,10 @@
 // include on FU-server (Linux)
 //#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
 // include on Windows PC
-#include <C:\Users\Moritz\Desktop\Softwarepraktikum\openms\OpenMS\src\openms\include\OpenMS\CONCEPT\Colorizer.h>
+//#include <C:\Users\Moritz\Desktop\Softwarepraktikum\openms\OpenMS\src\openms\include\OpenMS\CONCEPT\Colorizer.h>
 
 // include in project
-//#include <OpenMS/CONCEPT/Colorizer.h>
+#include <OpenMS/CONCEPT/Colorizer.h>
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
