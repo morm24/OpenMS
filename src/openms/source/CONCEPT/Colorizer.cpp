@@ -32,8 +32,14 @@
 // $Authors: Moritz Berger, Tetana Krymovska$
 // --------------------------------------------------------------------------
 
+
+// include on FU-server (Linux)
 //#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
-#include <OpenMS/CONCEPT/Colorizer.h>
+// include on Windows PC
+#include <C:\Users\Moritz\Desktop\Softwarepraktikum\openms\OpenMS\src\openms\include\OpenMS\CONCEPT\Colorizer.h>
+
+// include in project
+//#include <OpenMS/CONCEPT/Colorizer.h>
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
@@ -47,6 +53,52 @@
 **/
 namespace OpenMS
 {
+
+#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+  namespace Internal
+  {
+
+    WindowsOSDefaultColor::WindowsOSDefaultColor()
+    {
+      std::cout << "saving default colors...\n";
+      CONSOLE_SCREEN_BUFFER_INFO Info;
+      HANDLE handle_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+      HANDLE handle_stderr = GetStdHandle(STD_ERROR_HANDLE);
+
+      GetConsoleScreenBufferInfo(handle_stdout, &Info);
+
+      default_cout_ = Info.wAttributes;
+
+      GetConsoleScreenBufferInfo(handle_stderr, &Info);
+
+      default_cerr_ = Info.wAttributes;
+
+      /// get and remember 2 default colors
+    }
+    WindowsOSDefaultColor::~WindowsOSDefaultColor()
+    {
+      std::cout << "restoring default colors...\n";
+      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_cout_);
+      SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), default_cerr_);
+    }
+    extern const WindowsOSDefaultColor default_color___();
+
+  } // namespace Internal
+  
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   /** @name Constructors and Destructor
    */
@@ -81,36 +133,23 @@ namespace OpenMS
    * 7=white
    * 8=default console color (reset)
   \return std::string contaaining ANSI escape characters for colors
-
-  auto Colorizer::getColor(int i)
-  {
-    //checking if parameter is outside array size or not set at all
-    // Darf nicht NULL, da dadurch kein "black" mehr möglich ist
-    return ((i == -1 || i > 8 || i < 0) ? this->colors[this->_color] : this->colors[i]);
-  }
-
-  std::string Colorizer::getText()
-  {
-
-    return _input.str();
-  }
   */
 
-  //Helper function, to manipulate the output stream in class.
+  // Helper function, to manipulate the output stream in class.
   void Colorizer::outputToStream(std::ostream& o_stream)
   {
-    #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
 
     // set color of output
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), this->colors[this->color_]);
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), this->colors_[this->color_]);
 
     // paste text
-    o_stream << this->input_;
+    o_stream << this->input_.str();
 
     // recover old Console font and set it as new one.
     if (this->reset_)
     {
-      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_color___);
+      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), OpenMS::Internal::default_color___.default_cout_);
     }
 
 #elif defined(__linux__) || defined(__OSX__)
@@ -119,7 +158,7 @@ namespace OpenMS
     o_stream << this->input_.str();
 
     // if flag reset is set: reset comand line. else dont reset.
-    if(this->reset_)
+    if (this->reset_)
     {
       o_stream << this->colors_[8];
     }
@@ -157,7 +196,7 @@ namespace OpenMS
   OpenMS::Colorizer magenta(COLOR::magenta);
   OpenMS::Colorizer cyan(COLOR::cyan);
   OpenMS::Colorizer white(COLOR::white);
-  OpenMS::Colorizer reset_color(COLOR::RESET); 
-  OpenMS::Colorizer default_color(COLOR::RESET);
+  OpenMS::Colorizer reset_color(COLOR::RESET);
+  //OpenMS::Colorizer reset_color(COLOR::RESET);
 
 } // namespace OpenMS

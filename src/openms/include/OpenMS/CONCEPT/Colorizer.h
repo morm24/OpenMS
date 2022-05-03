@@ -44,50 +44,28 @@
 
 namespace OpenMS
 {
-#ifdef OPENMS_WINDOWSPLATFORM
+#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
   namespace Internal
   {
     struct WindowsOSDefaultColor {
-      WindowsOSDefaultColor()
-      {
-        //! nicht hier initialisieren, da winows.h includiert werden müste. (in .cpp machen)
+      WindowsOSDefaultColor();
+      ~WindowsOSDefaultColor();
 
-        std::cout << "saving default colors...\n";
-        CONSOLE_SCREEN_BUFFER_INFO Info;
-        HANDLE handle_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
-        HANDLE handle_stderr = GetStdHandle(STD_ERROR_HANDLE);
-        
-        GetConsoleScreenBufferInfo(handle_stdout, &Info);
-        
-        default_cout_ = Info.wAttributes;
-                
-        GetConsoleScreenBufferInfo(handle_stderr, &Info);
-        
-        default_cerr_ = Info.wAttributes
-        
-        /// get and remember 2 default colors
-      }
-      ~WindowsOSDefaultColor()
-      {
+      //int get_default_cout();
 
-        std::cout << "restoring default colors...\n";
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_cout_ );
-        etConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), default_cerr_);
-        
-      }
-
-      
-        int default_cout_;
-        int default_cerr_;
+      int default_cout_;
+      int default_cerr_;
     }; // end WindowsOSDefaultColor
-
-    extern static const WindowsOSDefaultColor default_color____;
+    
+    //extern or static. both throw an error
+    static const WindowsOSDefaultColor default_color___();
 
   } // namespace Internal
 #endif
 
-//enum COLOR for easier Object initialisation.
-  enum class COLOR {
+  // enum COLOR for easier Object initialisation.
+  enum class COLOR
+  {
     black,
     red,
     green,
@@ -118,8 +96,8 @@ namespace OpenMS
     ~Colorizer();
     //@}
 
-    void outputToStream(std::ostream &o_stream);
-    
+    void outputToStream(std::ostream& o_stream);
+
 
     // operator overloading
     friend std::ostream& operator<<(std::ostream& o_stream, Colorizer& col);
@@ -148,7 +126,6 @@ namespace OpenMS
     bool reset_ = true;
 
 
-
 /**
  * @brief constant string array which saves the Linux color codes.
  * 0=black
@@ -162,7 +139,7 @@ namespace OpenMS
  * 8=default console color (reset)
  *
  */
-#ifdef OPENMS_WINDOWSPLATFORM
+#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
     inline static constexpr std::array<const int, 9> colors_ {16, 12, 10, 14, 9, 13, 11, 15, 15};
 
 #elif defined(__linux__) || defined(__OSX__)
@@ -181,8 +158,8 @@ namespace OpenMS
   extern /*OPENMS_DLLAPI*/ Colorizer magenta;
   extern /*OPENMS_DLLAPI*/ Colorizer cyan;
   extern /*OPENMS_DLLAPI*/ Colorizer white;
-  extern /*OPENMS_DLLAPI*/ Colorizer reset_color;        ///< reset the color to default, alias for 'make_default_color'
-  extern /*OPENMS_DLLAPI*/ Colorizer default_color; ///< reset the color to default, alias for 'reset_color'
+  extern /*OPENMS_DLLAPI*/ Colorizer reset_color;   ///< reset the color to default, alias for 'make_default_color'
+  //extern /*OPENMS_DLLAPI*/ Colorizer default_color; ///< reset the color to default, alias for 'reset_color'
 
 
   // wahrscheinlich unnörig, da funktionalität unter windows nicht gegeben.
@@ -222,7 +199,7 @@ namespace OpenMS
   template<typename T = std::string>
   extern std::string cyan(T s = T(""))
   {
-    
+
     return make_cyan(s);
   }
   template<typename T = std::string>
@@ -248,4 +225,3 @@ namespace OpenMS
     Colorizer yellow(const char *text);
     Colorizer cyan(const char *text);*/
 } // namespace OpenMS
-
