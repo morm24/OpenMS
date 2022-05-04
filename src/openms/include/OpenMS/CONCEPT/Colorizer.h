@@ -96,7 +96,9 @@ namespace OpenMS
     ~Colorizer();
     //@}
 
-    void outputToStream(std::ostream& o_stream);
+    void outputToStream_(std::ostream& o_stream);
+
+    void colorStream_
 
 
     // operator overloading

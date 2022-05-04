@@ -34,12 +34,13 @@
 
 
 // include on FU-server (Linux)
-//#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
+#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
 // include on Windows PC
-#include <C:\Users\Moritz\Desktop\Softwarepraktikum\openms\OpenMS\src\openms\include\OpenMS\CONCEPT\Colorizer.h>
+//#include <C:\Users\Moritz\Desktop\Softwarepraktikum\openms\OpenMS\src\openms\include\OpenMS\CONCEPT\Colorizer.h>
 
 // include in project
 //#include <OpenMS/CONCEPT/Colorizer.h>
+#include <OpenMS/APPLICATIONS/ConsoleUtils.h>
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
@@ -54,39 +55,39 @@
 namespace OpenMS
 {
 
-#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-  namespace Internal
-  {
+// #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+//   namespace Internal
+//   {
 
-    WindowsOSDefaultColor::WindowsOSDefaultColor()
-    {
-      std::cout << "saving default colors...\n";
-      CONSOLE_SCREEN_BUFFER_INFO Info;
-      HANDLE handle_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
-      HANDLE handle_stderr = GetStdHandle(STD_ERROR_HANDLE);
+//     WindowsOSDefaultColor::WindowsOSDefaultColor()
+//     {
+//       std::cout << "saving default colors...\n";
+//       CONSOLE_SCREEN_BUFFER_INFO Info;
+//       HANDLE handle_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+//       HANDLE handle_stderr = GetStdHandle(STD_ERROR_HANDLE);
 
-      GetConsoleScreenBufferInfo(handle_stdout, &Info);
+//       GetConsoleScreenBufferInfo(handle_stdout, &Info);
 
-      default_cout_ = Info.wAttributes;
+//       default_cout_ = Info.wAttributes;
 
-      GetConsoleScreenBufferInfo(handle_stderr, &Info);
+//       GetConsoleScreenBufferInfo(handle_stderr, &Info);
 
-      default_cerr_ = Info.wAttributes;
+//       default_cerr_ = Info.wAttributes;
 
-      /// get and remember 2 default colors
-    }
-    WindowsOSDefaultColor::~WindowsOSDefaultColor()
-    {
-      std::cout << "restoring default colors...\n";
-      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_cout_);
-      SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), default_cerr_);
-    }
-    //static oder extern. beides geht nicht.
-    static const WindowsOSDefaultColor default_color___;
+//       /// get and remember 2 default colors
+//     }
+//     WindowsOSDefaultColor::~WindowsOSDefaultColor()
+//     {
+//       std::cout << "restoring default colors...\n";
+//       SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_cout_);
+//       SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), default_cerr_);
+//     }
+//     //static oder extern. beides geht nicht.
+//     static const WindowsOSDefaultColor default_color___;
 
-  } // namespace Internal
+//   } // namespace Internal
   
-#endif
+// #endif
 
 
 
@@ -137,7 +138,7 @@ namespace OpenMS
   */
 
   // Helper function, to manipulate the output stream in class.
-  void Colorizer::outputToStream(std::ostream& o_stream)
+  void Colorizer::outputToStream_(std::ostream& o_stream)
   {
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
 
@@ -150,7 +151,9 @@ namespace OpenMS
     // recover old Console font and set it as new one.
     if (this->reset_)
     {
-      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Internal::default_color___.default_cout_);
+      instance___.resetCerrColor();
+      instance___.resetCourColor();
+      //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), //Internal::default_color___.default_cout_);
     }
 
 #elif defined(__linux__) || defined(__OSX__)
@@ -171,7 +174,7 @@ namespace OpenMS
   std::ostream& operator<<(std::ostream& o_stream, OpenMS::Colorizer& col)
   {
     // colorize string with color set in the object
-    col.outputToStream(o_stream);
+    col.outputToStream_(o_stream);
     return o_stream;
   }
 

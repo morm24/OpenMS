@@ -54,16 +54,54 @@ namespace OpenMS
   {
     // initialize the console width
     readConsoleSize_();
+
+    //if operating OS is Windows: save default output color for cour and cerr
+#ifdef OPENMS_WINDOWSPLATFORM
+    CONSOLE_SCREEN_BUFFER_INFO Info;
+      HANDLE handle_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+      HANDLE handle_stderr = GetStdHandle(STD_ERROR_HANDLE);
+
+      GetConsoleScreenBufferInfo(handle_stdout, &Info);
+
+      default_cout_ = Info.wAttributes;
+
+      GetConsoleScreenBufferInfo(handle_stderr, &Info);
+
+      default_cerr_ = Info.wAttributes;
+
+      /// get and remember 2 default colors
+#endif  
+  }
+
+  ConsoleUtils::~ConsoleUtils()
+  {
+#ifdef OPENMS_WINDOWSPLATFORM
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_cout_);
+    SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), default_cerr_);
+#endif 
   }
 
   ConsoleUtils::ConsoleUtils(ConsoleUtils const& other) :
     console_width_(other.console_width_)
   {
+    #ifdef OPENMS_WINDOWSPLATFORM
+    default_cout_ = other.default_cout_;
+    default_cerr_ = other.default.cerr_;
+#endif
   }
 
   void ConsoleUtils::operator=(const ConsoleUtils& other)
   {
     console_width_ = other.console_width_;
+#ifdef OPENMS_WINDOWSPLATFORM
+    default_cout_ = other.default_cout_;
+    default_cerr_ = other.default.cerr_;
+#endif 
+  }
+
+  int ConsoleUtils::getConsoleWidth_()
+  {
+    return console_width_;
   }
 
   int ConsoleUtils::readConsoleSize_()

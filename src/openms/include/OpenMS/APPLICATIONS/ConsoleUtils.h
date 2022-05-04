@@ -48,7 +48,7 @@ public:
     /// line, so one gets a left aligned block which has some space to the left.
     /// An indentation of 0 results in the native console's default behaviour: just break at the end of
     /// its width and start a new line.
-    /// but usually one wants nicely intended blocks, which the console does not support
+    /// but usually one wants nicely indented blocks, which the console does not support
     /// 'max_lines' gives the upper limit of lines returned after breaking is finished. 
     /// Excess lines are removed and replaced by '...', BUT the last line will be preserved.
     /// @param input String to be split
@@ -56,12 +56,27 @@ public:
     /// @param max_lines Limit of output lines (all others are removed)
     static String breakString(const String& input, const Size indentation, const Size max_lines);
 
+    static int getConsoleWidth();
+
+
+#ifdef OPENMS_WINDOWSPLATFORM
+
+    /// reset the color of the windows output handle
+    void resetCoutColor();
+    /// reset the color of the windows error handle
+    void resetCerrColor();
+
+#endif
+
 private:
     /// width of console we are currently in (if not determinable, set to 80 as default)
     int console_width_;
 
     /// read console settings for output shaping
     int readConsoleSize_();
+
+    /// return console width
+    int getConsoleWidth_(); 
 
     /// returns a console friendly version of input
     String breakString_(const String& input, const Size indentation, const Size max_lines);
@@ -72,8 +87,66 @@ private:
     /// Copy C'tor
     ConsoleUtils(const ConsoleUtils &);
 
+    /// Destructor
+    ~ConsoleUtils();
+
     /// Assignment operator
     void operator=(ConsoleUtils const&);
+
+#ifdef OPENMS_WINDOWSPLATFORM
+    
+    /// reset the color of both output streams
+    void resetConsoleColor_();
+
+    /// Default console color for output stream
+    int default_cout_;
+
+    /// Default console color for error stream
+    int default_cerr_;
+
+#endif
+  };
+
+
+  
+  class IndentedStringStream
+  {
+  public:
+    IndentedStringStream(std::ostream& stream, const Size indentation, const Size max_lines)
+    : stream_(&stream),
+      indentation_(indentation),
+      max_lines_(max_lines),
+      current_column_pos_(0)
+    {
+      max_line_width_ = ConsoleUtils::getConsoleWidth_();
+    }
+
+    template<class T>
+    IndentedStringStream& operator<<(const T& data)
+    {
+      std::stringstream s;
+      s << data;
+      const auto& string_to_print = s.str();
+      // length?
+      // needs splitting?
+      // update current_column_pos_
+
+    }
+
+    template<>
+    IndentedStringStream& operator<< <Colorizer>(const Colorizer& colorizer)
+    {
+      colorizer.applyColor(*stream_);
+      this->operator<<(colorizer.getDataAsString());
+      colorizer.undoColor(*stream_);
+    }
+
+  private:
+    std::ostream* stream_;
+    Size indentation_;
+    Size max_lines_;
+    int max_line_width_;
+    Size current_column_pos_;
   };
 
 } // namespace OpenMS
