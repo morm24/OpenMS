@@ -44,26 +44,7 @@
 
 namespace OpenMS
 {
-#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-  namespace Internal
-  {
-    struct WindowsOSDefaultColor {
-      WindowsOSDefaultColor();
-      ~WindowsOSDefaultColor();
-
-      //int get_default_cout();
-
-      int default_cout_;
-      int default_cerr_;
-    }; // end WindowsOSDefaultColor
-    
-    //extern or static. both throw an error
-    //extern const WindowsOSDefaultColor default_color___;
-
-  } // namespace Internal
-#endif
-
-  // enum COLOR for easier Object initialisation.
+  /// enum COLOR for easier Object initialisation.
   enum class COLOR
   {
     black,
@@ -83,28 +64,37 @@ namespace OpenMS
    */
   class Colorizer
   {
-  public:
-    /** @name Constructors and Destructor
-     */
-    //@{
+public:
+    /// Constructor
     Colorizer(const COLOR color);
 
     /// Copy constructor
     // Colorizer(const Colorizer &rhs);
 
+    ///Assignment Operator
+    
     /// Destructor
     ~Colorizer();
-    //@}
 
-    void outputToStream_(std::ostream& o_stream);
+    ///
+    void outputToStream(std::ostream& o_stream);
 
-    void colorStream_
+    ///
+    void colorStream(std::ostream& stream);
 
+    ///
+    void resetColor(std::ostream& stream);
 
-    // operator overloading
+    ///
+    bool getReset();
+
+    ///
+    std::string getDataAsString();
+
+    /// insetrion Operator
     friend std::ostream& operator<<(std::ostream& o_stream, Colorizer& col);
 
-
+    /// Bracket Operator
     Colorizer& operator()()
     {
       reset_ = false;
@@ -112,7 +102,7 @@ namespace OpenMS
       return *this;
     }
 
-
+    /// Bracket Operator
     template<typename T>
     Colorizer& operator()(T s)
     {
@@ -122,9 +112,14 @@ namespace OpenMS
       return *this;
     }
 
-  private:
+private:
+
     const int color_;
+
+    /// input in Colorizer object to be colored
     std::stringstream input_;
+
+    /// 
     bool reset_ = true;
 
 
@@ -142,9 +137,11 @@ namespace OpenMS
  *
  */
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+    /// 
     inline static constexpr std::array<const int, 9> colors_ {16, 12, 10, 14, 9, 13, 11, 15, 15};
 
 #elif defined(__linux__) || defined(__OSX__)
+    /// 
     inline static constexpr std::array<const char*, 9> colors_ {"\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m", "\033[37m", "\033[0m"};
 
 #endif
@@ -163,67 +160,4 @@ namespace OpenMS
   extern /*OPENMS_DLLAPI*/ Colorizer reset_color;   ///< reset the color to default, alias for 'make_default_color'
   //extern /*OPENMS_DLLAPI*/ Colorizer default_color; ///< reset the color to default, alias for 'reset_color'
 
-
-  // wahrscheinlich unnörig, da funktionalität unter windows nicht gegeben.
-
-  // definition of colorizing functions. (so function calls like process_string(green(string)) are possible.)
-  /*
-  template<typename T = std::string>
-  extern std::string black(T s = T(""))
-  {
-    return color_black(s);
-  }
-  template<typename T = std::string>
-  extern std::string red(T s = T(""))
-  {
-    return make_red(s);
-  }
-  template<typename T = std::string>
-  extern std::string green(T s = T(""))
-  {
-    return make_green(s);
-  }
-  template<typename T = std::string>
-  extern std::string yellow(T s = T(""))
-  {
-    return make_yellow(s);
-  }
-  template<typename T = std::string>
-  extern std::string blue(T s = T(""))
-  {
-    return make_blue(s);
-  }
-  template<typename T = std::string>
-  extern std::string magenta(T s = T(""))
-  {
-    return make_magenta(s);
-  }
-  template<typename T = std::string>
-  extern std::string cyan(T s = T(""))
-  {
-
-    return make_cyan(s);
-  }
-  template<typename T = std::string>
-  extern std::string white(T s = T(""))
-  {
-    return make_white(s);
-  }
-  template<typename T = std::string>
-  extern std::string def(T s = T(""))
-  {
-    return make_default_color(s);
-  }
-
-  /*
-    Colorizer red(std::string text);
-    Colorizer green(std::string text);
-    Colorizer yellow(std::string text);
-    Colorizer cyan(std::string text);
-
-    //Colorizer blue(const char *text);
-    Colorizer red(const char *text);
-    Colorizer green(const char *text);
-    Colorizer yellow(const char *text);
-    Colorizer cyan(const char *text);*/
 } // namespace OpenMS

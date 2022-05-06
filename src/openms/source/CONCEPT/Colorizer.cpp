@@ -35,78 +35,28 @@
 
 // include on FU-server (Linux)
 #include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
+
 // include on Windows PC
 //#include <C:\Users\Moritz\Desktop\Softwarepraktikum\openms\OpenMS\src\openms\include\OpenMS\CONCEPT\Colorizer.h>
 
 // include in project
 //#include <OpenMS/CONCEPT/Colorizer.h>
-#include <OpenMS/APPLICATIONS/ConsoleUtils.h>
+
+
+
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
   #include <windows.h>
+  #include <OpenMS/APPLICATIONS/ConsoleUtils.h>
 #endif
-/**
 
-#include <OpenMS/CONCEPT/Exception.h>
-#include <OpenMS/CONCEPT/Types.h>
-#include <OpenMS/DATASTRUCTURES/String.h>
-**/
 namespace OpenMS
 {
 
-// #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-//   namespace Internal
-//   {
-
-//     WindowsOSDefaultColor::WindowsOSDefaultColor()
-//     {
-//       std::cout << "saving default colors...\n";
-//       CONSOLE_SCREEN_BUFFER_INFO Info;
-//       HANDLE handle_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
-//       HANDLE handle_stderr = GetStdHandle(STD_ERROR_HANDLE);
-
-//       GetConsoleScreenBufferInfo(handle_stdout, &Info);
-
-//       default_cout_ = Info.wAttributes;
-
-//       GetConsoleScreenBufferInfo(handle_stderr, &Info);
-
-//       default_cerr_ = Info.wAttributes;
-
-//       /// get and remember 2 default colors
-//     }
-//     WindowsOSDefaultColor::~WindowsOSDefaultColor()
-//     {
-//       std::cout << "restoring default colors...\n";
-//       SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_cout_);
-//       SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), default_cerr_);
-//     }
-//     //static oder extern. beides geht nicht.
-//     static const WindowsOSDefaultColor default_color___;
-
-//   } // namespace Internal
-  
-// #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  /** @name Constructors and Destructor
-   */
-  //@{
   // constructor
-  Colorizer::Colorizer(const COLOR color) : color_((int)color) // color must be in initializer list, because of const keyword
+  Colorizer::Colorizer(const COLOR color) :
+    color_((int)color) // color must be in initializer list, because of const keyword
   {
   }
 
@@ -118,55 +68,57 @@ namespace OpenMS
     std::cout << colors_[8];
 #endif
   }
-  //@}
 
-  /**
-  \fn getColor(int i)
-  \details this function return the ANSI escape sequence for the color, saved in the Colorizer Object.
-  \return std::string contaaining ANSI escape characters for colors
-  \arg i codes for following colors:
-   * 0=black
-   * 1=red
-   * 2=green
-   * 3=yellow
-   * 4=blue
-   * 5=magenta
-   * 6=cyan
-   * 7=white
-   * 8=default console color (reset)
-  \return std::string contaaining ANSI escape characters for colors
-  */
-
-  // Helper function, to manipulate the output stream in class.
-  void Colorizer::outputToStream_(std::ostream& o_stream)
+  ///
+  void Colorizer::colorStream(std::ostream& stream)
   {
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-
     // set color of output
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), this->colors_[this->color_]);
+    ConsoleUtils::getInstance().setCoutColor(colors_[color_]);
+#elif defined(__linux__) || defined(__OSX__)
+    // write coloring escape codes into the string
+    stream << this->colors_[this->color_];
+#endif
+  }
+
+  ///
+  void Colorizer::resetColor(std::ostream& stream)
+  {
+#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+    ConsoleUtils::getInstance().resetCerrColor();
+    ConsoleUtils::getInstance().resetCoutColor();
+#elif defined(__linux__) || defined(__OSX__)
+    stream << this->colors_[8];
+#endif
+  }
+
+  ///
+  bool Colorizer::getReset()
+  {
+    return reset_;
+  }
+
+  ///
+  std::string Colorizer::getDataAsString()
+  {
+    return input_.str();
+  }
+
+  // Helper function, to manipulate the output stream in class.
+  void Colorizer::outputToStream(std::ostream& o_stream)
+  {
+    ///color the stream (or console)
+    colorStream(o_stream);
 
     // paste text
-    o_stream << this->input_.str();
-
-    // recover old Console font and set it as new one.
-    if (this->reset_)
-    {
-      instance___.resetCerrColor();
-      instance___.resetCourColor();
-      //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), //Internal::default_color___.default_cout_);
-    }
-
-#elif defined(__linux__) || defined(__OSX__)
-    o_stream << this->colors_[this->color_];
-
     o_stream << this->input_.str();
 
     // if flag reset is set: reset comand line. else dont reset.
     if (this->reset_)
     {
-      o_stream << this->colors_[8];
+      resetColor(o_stream);
     }
-#endif
+
   }
 
 
@@ -174,22 +126,9 @@ namespace OpenMS
   std::ostream& operator<<(std::ostream& o_stream, OpenMS::Colorizer& col)
   {
     // colorize string with color set in the object
-    col.outputToStream_(o_stream);
+    col.outputToStream(o_stream);
     return o_stream;
   }
-
-
-  // All color types (Linux/OSX)
-  /*
-  Black           30  40
-  Red             31  41
-  Green           32  42
-  Yellow          33  43
-  Blue            34  44
-  Magenta         35  45
-  Cyan            36  46
-  White           37  47
-  */
 
   // Objekte des typs colorizer
   OpenMS::Colorizer black(COLOR::black);
@@ -202,5 +141,12 @@ namespace OpenMS
   OpenMS::Colorizer white(COLOR::white);
   OpenMS::Colorizer reset_color(COLOR::RESET);
   //OpenMS::Colorizer reset_color(COLOR::RESET);
+
+
+
+
+
+
+
 
 } // namespace OpenMS

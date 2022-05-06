@@ -35,13 +35,14 @@
 #pragma once
 
 #include <OpenMS/DATASTRUCTURES/String.h>
+#include <OpenMS/CONCEPT/Colorizer.h>
 
 namespace OpenMS
 {
 
   class OPENMS_DLLAPI ConsoleUtils
   {
-public:
+  public:
     /// make a string console friendly
     /// by breaking it into multiple lines according to the console width
     /// The 'indentation' gives the number of spaces which is prepended beginning at the second (!)
@@ -49,34 +50,54 @@ public:
     /// An indentation of 0 results in the native console's default behaviour: just break at the end of
     /// its width and start a new line.
     /// but usually one wants nicely indented blocks, which the console does not support
-    /// 'max_lines' gives the upper limit of lines returned after breaking is finished. 
+    /// 'max_lines' gives the upper limit of lines returned after breaking is finished.
     /// Excess lines are removed and replaced by '...', BUT the last line will be preserved.
     /// @param input String to be split
     /// @param indentation Number of spaces to use for lines 2 until last line.
     /// @param max_lines Limit of output lines (all others are removed)
     static String breakString(const String& input, const Size indentation, const Size max_lines);
 
-    static int getConsoleWidth();
+    const int getConsoleSize()
+  {
+    return console_width_;
+  }
+
+    static ConsoleUtils getInstance()
+    {
+      return getInstance_();
+    }
 
 
-#ifdef OPENMS_WINDOWSPLATFORM
+//#ifdef OPENMS_WINDOWSPLATFORM
 
     /// reset the color of the windows output handle
     void resetCoutColor();
     /// reset the color of the windows error handle
     void resetCerrColor();
 
-#endif
+    /// reset the color of both output streams
+    void resetConsoleColor();
 
-private:
+    void setCoutColor(int color_code);
+
+    void setCerrColor(int color_code);
+
+//#endif
+
+
+
+
+/// Destructor
+    ~ConsoleUtils();
+
+  private:
     /// width of console we are currently in (if not determinable, set to 80 as default)
     int console_width_;
 
     /// read console settings for output shaping
     int readConsoleSize_();
 
-    /// return console width
-    int getConsoleWidth_(); 
+    static  ConsoleUtils& getInstance_();
 
     /// returns a console friendly version of input
     String breakString_(const String& input, const Size indentation, const Size max_lines);
@@ -85,7 +106,7 @@ private:
     ConsoleUtils();
 
     /// Copy C'tor
-    ConsoleUtils(const ConsoleUtils &);
+    ConsoleUtils(const ConsoleUtils&);
 
     /// Destructor
     ~ConsoleUtils();
@@ -93,10 +114,7 @@ private:
     /// Assignment operator
     void operator=(ConsoleUtils const&);
 
-#ifdef OPENMS_WINDOWSPLATFORM
-    
-    /// reset the color of both output streams
-    void resetConsoleColor_();
+//#ifdef OPENMS_WINDOWSPLATFORM
 
     /// Default console color for output stream
     int default_cout_;
@@ -104,50 +122,51 @@ private:
     /// Default console color for error stream
     int default_cerr_;
 
-#endif
+
+//#endif
   };
 
 
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   class IndentedStringStream
   {
   public:
-    IndentedStringStream(std::ostream& stream, const Size indentation, const Size max_lines)
-    : stream_(&stream),
-      indentation_(indentation),
-      max_lines_(max_lines),
-      current_column_pos_(0)
+    IndentedStringStream(std::ostream& stream, const Size indentation, const Size max_lines) : stream_(&stream), indentation_(indentation), max_lines_(max_lines), current_column_pos_(0)
     {
-      max_line_width_ = ConsoleUtils::getConsoleWidth_();
+      max_line_width_ = ConsoleUtils::getInstance().getConsoleSize();
     }
+
+    
 
     template<class T>
-    IndentedStringStream& operator<<(const T& data)
-    {
-      std::stringstream s;
-      s << data;
-      const auto& string_to_print = s.str();
-      // length?
-      // needs splitting?
-      // update current_column_pos_
+    IndentedStringStream& operator<<(const T& data);
 
-    }
 
-    template<>
-    IndentedStringStream& operator<< <Colorizer>(const Colorizer& colorizer)
-    {
-      colorizer.applyColor(*stream_);
-      this->operator<<(colorizer.getDataAsString());
-      colorizer.undoColor(*stream_);
-    }
+
+    template<typename Colorizer>
+    IndentedStringStream& operator<<<Colorizer>(const Colorizer& colorizer);
 
   private:
     std::ostream* stream_;
-    Size indentation_;
-    Size max_lines_;
+    int indentation_;
+    int max_lines_;
     int max_line_width_;
-    Size current_column_pos_;
+    int current_column_pos_;
   };
 
-} // namespace OpenMS
 
+} // namespace OpenMS

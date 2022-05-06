@@ -37,7 +37,7 @@
 #include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/DATASTRUCTURES/StringListUtils.h>
 
-#ifdef OPENMS_WINDOWSPLATFORM
+#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
 #include <windows.h> // for GetConsoleScreenBufferInfo()
 #undef min
 #undef max
@@ -56,7 +56,7 @@ namespace OpenMS
     readConsoleSize_();
 
     //if operating OS is Windows: save default output color for cour and cerr
-#ifdef OPENMS_WINDOWSPLATFORM
+#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
     CONSOLE_SCREEN_BUFFER_INFO Info;
       HANDLE handle_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
       HANDLE handle_stderr = GetStdHandle(STD_ERROR_HANDLE);
@@ -75,33 +75,33 @@ namespace OpenMS
 
   ConsoleUtils::~ConsoleUtils()
   {
-#ifdef OPENMS_WINDOWSPLATFORM
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), default_cout_);
-    SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), default_cerr_);
+#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+    setCoutColor(default_cout_);
+    setCerrColor(default_cerr_);
 #endif 
   }
 
   ConsoleUtils::ConsoleUtils(ConsoleUtils const& other) :
     console_width_(other.console_width_)
   {
-    #ifdef OPENMS_WINDOWSPLATFORM
+#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
     default_cout_ = other.default_cout_;
-    default_cerr_ = other.default.cerr_;
+    default_cerr_ = other.default_cerr_;
 #endif
   }
 
   void ConsoleUtils::operator=(const ConsoleUtils& other)
   {
     console_width_ = other.console_width_;
-#ifdef OPENMS_WINDOWSPLATFORM
+#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
     default_cout_ = other.default_cout_;
     default_cerr_ = other.default.cerr_;
 #endif 
   }
 
-  int ConsoleUtils::getConsoleWidth_()
+  String ConsoleUtils::breakString(const String& input, const Size indentation, const Size max_lines) 
   {
-    return console_width_;
+    return getInstance().breakString_(input, indentation, max_lines);
   }
 
   int ConsoleUtils::readConsoleSize_()
@@ -131,7 +131,7 @@ namespace OpenMS
           OPENMS_LOG_DEBUG << "output shaping: COLUMNS env does not exist!" << std::endl;
         }
 
-#ifdef OPENMS_WINDOWSPLATFORM
+#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
         HANDLE hOut;
         CONSOLE_SCREEN_BUFFER_INFO SBInfo;
         hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -180,10 +180,10 @@ namespace OpenMS
     return console_width_;
   }
 
-  String ConsoleUtils::breakString(const String& input, const Size indentation, const Size max_lines)
+  ConsoleUtils& ConsoleUtils::getInstance_()
   {
     static ConsoleUtils instance;
-    return instance.breakString_(input, indentation, max_lines);
+    return instance;
   }
 
   String ConsoleUtils::breakString_(const OpenMS::String& input, const Size indentation, const Size max_lines)
@@ -246,5 +246,62 @@ namespace OpenMS
     //if (result.size()>0 && result[result.size()-1].hasSuffix(" ")) result[result.size()-1] = result[result.size()-1].substr(0,result[result.size()-1].size()-1);
     return ListUtils::concatenate(result, "\n");
   }
+
+#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+  void ConsoleUtils::resetConsoleColor()
+  {
+    setCoutColor(default_cout_);
+    setCerrColor(default_cerr_);
+  }
+
+void setCoutColor(int color_code)
+{
+  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color_code);
+  
+}
+
+void setCerrColor(int color_code)
+{
+  SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), color_code);
+}
+
+#endif
+
+
+
+
+///IndetedStringStream class:
+
+
+template<class T>
+    IndentedStringStream& IndentedStringStream::operator<<(const T& data)
+    {
+      std::stringstream s;
+      s << data;
+      const auto& string_to_print = s.str();
+      // length?
+      // needs splitting?
+      // update current_column_pos_
+
+
+      /*
+      Was ist hier genaau zu tun?  wie sollen diese Operatoren aufgerufen werden?
+      */
+    }
+
+template<typename Colorizer>
+    IndentedStringStream& IndentedStringStream::operator<<<Colorizer>(const Colorizer& colorizer)
+    { 
+
+      colorizer.colorStream(*stream_);
+      this->operator<<(colorizer.getDataAsString());
+      (colorizer.getReset())?:colorizer.resetColor(*stream_);
+      
+
+    }
+
+
+
+
 
 }
