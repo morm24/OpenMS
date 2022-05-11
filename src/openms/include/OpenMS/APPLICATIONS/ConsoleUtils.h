@@ -35,7 +35,9 @@
 #pragma once
 
 #include <OpenMS/DATASTRUCTURES/String.h>
+#include <OpenMS/DATASTRUCTURES/StringListUtils.h>
 #include <OpenMS/CONCEPT/Colorizer.h>
+#include <iostream>
 
 namespace OpenMS
 {
@@ -55,7 +57,7 @@ namespace OpenMS
     /// @param input String to be split
     /// @param indentation Number of spaces to use for lines 2 until last line.
     /// @param max_lines Limit of output lines (all others are removed)
-    static String breakString(const String& input, const Size indentation, const Size max_lines);
+    static OpenMS::StringList breakString(const String& input, const Size indentation, const Size max_lines, const Size curser_pos = 0);
 
     const int getConsoleSize()
   {
@@ -97,10 +99,11 @@ namespace OpenMS
     /// read console settings for output shaping
     int readConsoleSize_();
 
-    static  ConsoleUtils& getInstance_();
+
+    static ConsoleUtils& getInstance_();
 
     /// returns a console friendly version of input
-    String breakString_(const String& input, const Size indentation, const Size max_lines);
+    OpenMS::StringList breakString_(const String& input, const Size indentation, const Size max_lines, const Size curser_pos);
 
     /// C'tor
     ConsoleUtils();
@@ -108,8 +111,8 @@ namespace OpenMS
     /// Copy C'tor
     ConsoleUtils(const ConsoleUtils&);
 
-    /// Destructor
-    ~ConsoleUtils();
+    // /// Destructor
+    // ~ConsoleUtils();
 
     /// Assignment operator
     void operator=(ConsoleUtils const&);
@@ -151,14 +154,31 @@ namespace OpenMS
     }
 
     
+    template<typename T>
+    IndentedStringStream& operator<<(const T& data)
+    {
+    
+      std::stringstream s;
+      s << data;
+      const std::string& string_to_print = s.str();
+      
+      //wie viele zeilen sind es / viel viele zeichen in letrzter zeile
+      
+      OpenMS::StringList result = ConsoleUtils::breakString(string_to_print,indentation_,max_lines_,current_column_pos_);
+      
+      current_column_pos_ = result.back().size() -1;
+      
 
-    template<class T>
-    IndentedStringStream& operator<<(const T& data);
 
+        *stream_ << ListUtils::concatenate(result," ");
+      
+      return *this;
 
+    }
+///741 = offset
+///763 = indent
 
-    template<typename Colorizer>
-    IndentedStringStream& operator<<<Colorizer>(const Colorizer& colorizer);
+    IndentedStringStream& operator<<(Colorizer& colorizer);
 
   private:
     std::ostream* stream_;

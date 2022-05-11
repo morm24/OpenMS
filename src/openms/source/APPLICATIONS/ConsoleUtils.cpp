@@ -37,7 +37,7 @@
 #include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/DATASTRUCTURES/StringListUtils.h>
 
-#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#ifdef OPENMS_WINDOWSPLATTFORM
 #include <windows.h> // for GetConsoleScreenBufferInfo()
 #undef min
 #undef max
@@ -56,7 +56,7 @@ namespace OpenMS
     readConsoleSize_();
 
     //if operating OS is Windows: save default output color for cour and cerr
-#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#ifdef OPENMS_WINDOWSPLATTFORM
     CONSOLE_SCREEN_BUFFER_INFO Info;
       HANDLE handle_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
       HANDLE handle_stderr = GetStdHandle(STD_ERROR_HANDLE);
@@ -75,7 +75,7 @@ namespace OpenMS
 
   ConsoleUtils::~ConsoleUtils()
   {
-#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#ifdef OPENMS_WINDOWSPLATTFORM
     setCoutColor(default_cout_);
     setCerrColor(default_cerr_);
 #endif 
@@ -84,7 +84,7 @@ namespace OpenMS
   ConsoleUtils::ConsoleUtils(ConsoleUtils const& other) :
     console_width_(other.console_width_)
   {
-#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#ifdef OPENMS_WINDOWSPLATTFORM
     default_cout_ = other.default_cout_;
     default_cerr_ = other.default_cerr_;
 #endif
@@ -93,15 +93,15 @@ namespace OpenMS
   void ConsoleUtils::operator=(const ConsoleUtils& other)
   {
     console_width_ = other.console_width_;
-#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#ifdef OPENMS_WINDOWSPLATTFORM
     default_cout_ = other.default_cout_;
     default_cerr_ = other.default.cerr_;
 #endif 
   }
 
-  String ConsoleUtils::breakString(const String& input, const Size indentation, const Size max_lines) 
+  OpenMS::StringList ConsoleUtils::breakString(const String& input, const Size indentation, const Size max_lines, const Size curser_pos) 
   {
-    return getInstance().breakString_(input, indentation, max_lines);
+    return getInstance().breakString_(input, indentation, max_lines, curser_pos);
   }
 
   int ConsoleUtils::readConsoleSize_()
@@ -131,7 +131,7 @@ namespace OpenMS
           OPENMS_LOG_DEBUG << "output shaping: COLUMNS env does not exist!" << std::endl;
         }
 
-#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#ifdef OPENMS_WINDOWSPLATTFORM
         HANDLE hOut;
         CONSOLE_SCREEN_BUFFER_INFO SBInfo;
         hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -186,19 +186,33 @@ namespace OpenMS
     return instance;
   }
 
-  String ConsoleUtils::breakString_(const OpenMS::String& input, const Size indentation, const Size max_lines)
+//erweitern, mit aktueller curser position
+// rückgabe: vector von strings
+// (OpenMS::StringList)
+  OpenMS::StringList ConsoleUtils::breakString_(const OpenMS::String& input, const Size indentation, const Size max_lines, const Size curser_pos)
   {
-
+    
+    //OpenMS::StringList list;
+    //list.clear();
     // get the line length
-    const Int line_len = ConsoleUtils::readConsoleSize_();
+    Int line_len = ConsoleUtils::readConsoleSize_();
 
     StringList result;
     Size short_line_len = line_len - indentation;
+
+    /// hier wird linelen - neuer param curpos
+    line_len -= curser_pos;
+
+    
+
     if (short_line_len < 1)
     {
       std::cerr << "INTERNAL ERROR: cannot split lines into empty strings! see breakString_()";
-      return input;
+      result.push_back(input);
+      return result;
     }
+
+
     for (Size i = 0; i < input.size(); )
     {
       String line = input.substr(i, result.empty() ? line_len : short_line_len); // first line has full length
@@ -244,10 +258,11 @@ namespace OpenMS
     }
     // remove last " " from last line to prevent automatic line break
     //if (result.size()>0 && result[result.size()-1].hasSuffix(" ")) result[result.size()-1] = result[result.size()-1].substr(0,result[result.size()-1].size()-1);
-    return ListUtils::concatenate(result, "\n");
+    
+    return result;
   }
 
-#ifdef defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#ifdef OPENMS_WINDOWSPLATTFORM
   void ConsoleUtils::resetConsoleColor()
   {
     setCoutColor(default_cout_);
@@ -268,36 +283,19 @@ void setCerrColor(int color_code)
 #endif
 
 
-
-
-///IndetedStringStream class:
-
-
-template<class T>
-    IndentedStringStream& IndentedStringStream::operator<<(const T& data)
-    {
-      std::stringstream s;
-      s << data;
-      const auto& string_to_print = s.str();
-      // length?
-      // needs splitting?
-      // update current_column_pos_
-
-
-      /*
-      Was ist hier genaau zu tun?  wie sollen diese Operatoren aufgerufen werden?
-      */
-    }
-
-template<typename Colorizer>
-    IndentedStringStream& IndentedStringStream::operator<<<Colorizer>(const Colorizer& colorizer)
+    
+    IndentedStringStream& IndentedStringStream::operator<<(Colorizer& colorizer)   
     { 
-
       colorizer.colorStream(*stream_);
       this->operator<<(colorizer.getDataAsString());
-      (colorizer.getReset())?:colorizer.resetColor(*stream_);
-      
 
+      if(colorizer.getReset())
+      {
+        colorizer.resetColor(*stream_);
+      
+      }
+        
+      return *this;
     }
 
 

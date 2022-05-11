@@ -80,7 +80,7 @@ public:
     void outputToStream(std::ostream& o_stream);
 
     ///
-    void colorStream(std::ostream& stream);
+    void colorStream(std::ostream& stream) const;
 
     ///
     void resetColor(std::ostream& stream);

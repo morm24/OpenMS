@@ -34,29 +34,28 @@
 
 
 // include on FU-server (Linux)
-#include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
+// #include </buffer/ag_bsc/pmsb_22/morib70/openms/OpenMS/src/openms/include/OpenMS/CONCEPT/Colorizer.h>
 
 // include on Windows PC
 //#include <C:\Users\Moritz\Desktop\Softwarepraktikum\openms\OpenMS\src\openms\include\OpenMS\CONCEPT\Colorizer.h>
 
 // include in project
-//#include <OpenMS/CONCEPT/Colorizer.h>
+#include <OpenMS/CONCEPT/Colorizer.h>
 
 
 
 #include <iostream>
 
-#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-  #include <windows.h>
+#ifdef OPENMS_WINDOWSPLATTFORM
   #include <OpenMS/APPLICATIONS/ConsoleUtils.h>
+  #include <windows.h>
 #endif
 
 namespace OpenMS
 {
 
   // constructor
-  Colorizer::Colorizer(const COLOR color) :
-    color_((int)color) // color must be in initializer list, because of const keyword
+  Colorizer::Colorizer(const COLOR color) : color_((int)color) // color must be in initializer list, because of const keyword
   {
   }
 
@@ -70,11 +69,22 @@ namespace OpenMS
   }
 
   ///
-  void Colorizer::colorStream(std::ostream& stream)
+  void Colorizer::colorStream(std::ostream& stream) const
   {
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-    // set color of output
-    ConsoleUtils::getInstance().setCoutColor(colors_[color_]);
+
+    if (&std::cout == &stream)
+    {
+      // set color of output
+      ConsoleUtils::getInstance().setCoutColor(colors_[color_]);
+    }
+    else if (&std::cerr == &stream)
+    {
+      ///set color of error stream
+      ConsoleUtils::getInstance().setCerrColor(colors_[color_]);
+    }
+
+
 #elif defined(__linux__) || defined(__OSX__)
     // write coloring escape codes into the string
     stream << this->colors_[this->color_];
@@ -84,9 +94,20 @@ namespace OpenMS
   ///
   void Colorizer::resetColor(std::ostream& stream)
   {
-#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-    ConsoleUtils::getInstance().resetCerrColor();
-    ConsoleUtils::getInstance().resetCoutColor();
+#ifdef OPENMS_WINDOWSPLATTFORM
+    if (&std::cout == &stream)
+    {
+      // reset color of output
+      ConsoleUtils::getInstance().resetCoutColor();
+    }
+    else if (&std::cerr == &stream)
+    {
+      ///reset color of error stream
+      ConsoleUtils::getInstance().resetCerrColor();
+    }
+    
+    
+    
 #elif defined(__linux__) || defined(__OSX__)
     stream << this->colors_[8];
 #endif
@@ -107,7 +128,7 @@ namespace OpenMS
   // Helper function, to manipulate the output stream in class.
   void Colorizer::outputToStream(std::ostream& o_stream)
   {
-    ///color the stream (or console)
+    /// color the stream (or console)
     colorStream(o_stream);
 
     // paste text
@@ -118,7 +139,6 @@ namespace OpenMS
     {
       resetColor(o_stream);
     }
-
   }
 
 
@@ -140,13 +160,7 @@ namespace OpenMS
   OpenMS::Colorizer cyan(COLOR::cyan);
   OpenMS::Colorizer white(COLOR::white);
   OpenMS::Colorizer reset_color(COLOR::RESET);
-  //OpenMS::Colorizer reset_color(COLOR::RESET);
-
-
-
-
-
-
+  // OpenMS::Colorizer reset_color(COLOR::RESET);
 
 
 } // namespace OpenMS
