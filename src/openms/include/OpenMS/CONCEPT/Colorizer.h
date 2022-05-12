@@ -98,7 +98,7 @@ public:
     Colorizer& operator()()
     {
       reset_ = false;
-      this->input_.str(""); // clear the stream
+      this->input_.str(""); // clear the stringstream
       return *this;
     }
 
