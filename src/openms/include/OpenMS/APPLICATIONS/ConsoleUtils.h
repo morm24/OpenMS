@@ -177,7 +177,7 @@ namespace OpenMS
       
 
 
-        *stream_ << ListUtils::concatenate(result," ");
+        *stream_ << ListUtils::concatenate(result, '\n');
       
       return *this;
 
