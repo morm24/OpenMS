@@ -166,7 +166,14 @@ namespace OpenMS
       
       OpenMS::StringList result = ConsoleUtils::breakString(string_to_print,indentation_,max_lines_,current_column_pos_);
       
-      current_column_pos_ = result.back().size() -1;
+      if (result.size()>=2)
+      { // we completed the previous line, so start counting from the latest incomplete line
+        current_column_pos_ = result.back().size();
+       }
+       else
+       { // only one line; simply forward the column position
+         current_column_pos_ += result.back().size();
+       }
       
 
 
