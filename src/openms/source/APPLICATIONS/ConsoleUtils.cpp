@@ -76,8 +76,7 @@ namespace OpenMS
   ConsoleUtils::~ConsoleUtils()
   {
 #ifdef OPENMS_WINDOWSPLATTFORM
-    setCoutColor(default_cout_);
-    setCerrColor(default_cerr_);
+    resetConsoleColor();
 #endif 
   }
 
