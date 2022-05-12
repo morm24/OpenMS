@@ -81,22 +81,8 @@ namespace OpenMS
 #endif 
   }
 
-  ConsoleUtils::ConsoleUtils(ConsoleUtils const& other) :
-    console_width_(other.console_width_)
-  {
-#ifdef OPENMS_WINDOWSPLATTFORM
-    default_cout_ = other.default_cout_;
-    default_cerr_ = other.default_cerr_;
-#endif
-  }
-
-  void ConsoleUtils::operator=(const ConsoleUtils& other)
-  {
-    console_width_ = other.console_width_;
-#ifdef OPENMS_WINDOWSPLATTFORM
-    default_cout_ = other.default_cout_;
-    default_cerr_ = other.default.cerr_;
-#endif 
+  ConsoleUtils::ConsoleUtils(ConsoleUtils const& other) = default;
+  void ConsoleUtils::operator=(const ConsoleUtils& other) = default;
   }
 
   OpenMS::StringList ConsoleUtils::breakString(const String& input, const Size indentation, const Size max_lines, const Size curser_pos) 
