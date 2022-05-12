@@ -257,7 +257,6 @@ namespace OpenMS
 void setCoutColor(int color_code)
 {
   SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color_code);
-  
 }
 
 void setCerrColor(int color_code)
